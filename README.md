@@ -1,6 +1,6 @@
 #  Table Cell Extraction 
 
-This project extracts **individual table cells** from a scanned or digital image of a table   
+This code extracts **individual table cells** from a scanned or digital image of a table   
 It uses **image processing techniques** such as thresholding, morphological operations, and line detection to detect the grid structure and then **slices out each cell as a separate image**.
 
 ---
