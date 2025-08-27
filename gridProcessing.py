@@ -6,27 +6,27 @@ output_dir = "extracted_cells"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-
+#loading the image and making it binary also converting that binary to not of binary so i get a white lines for grid
 img = cv2.imread("image.png", cv2.IMREAD_GRAYSCALE)
 
 binary = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-
-
 binary = cv2.bitwise_not(binary)
 
+# defined horizontal and vertical kernels to identify lines
 horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (40, 1))
 vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 40))
 
+# morphpological operations
 horizontal_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
 vertical_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
 
-
+# houghtransform to complete line
 horizontal_segments = cv2.HoughLinesP(horizontal_lines, 1, np.pi/180, threshold=50, minLineLength=30, maxLineGap=10)
 vertical_segments = cv2.HoughLinesP(vertical_lines, 1, np.pi/180, threshold=50, minLineLength=30, maxLineGap=10)
 
 h_lines = [] 
 v_lines = [] 
-
+# storing coordinates
 if horizontal_segments is not None:
     for line in horizontal_segments:
         x1, y1, x2, y2 = line[0]
@@ -60,10 +60,10 @@ cell_count = 0
 extracted_cells = []
 
 padding = 2  
-
+# to extract cells
 for i in range(len(h_lines) - 1):
     for j in range(len(v_lines) - 1):
-        # Define cell boundaries
+        
         x1, y1 = v_lines[j], h_lines[i]
         x2, y2 = v_lines[j + 1], h_lines[i + 1]
         
@@ -97,7 +97,7 @@ for i in range(len(h_lines) - 1):
 print(f"Extracted {cell_count} individual cell images to '{output_dir}' folder")
 
 result_img = cv2.cvtColor(img.copy(), cv2.COLOR_GRAY2BGR)
-
+#just for visualization we already have meta data from above
 for i, cell_data in enumerate(extracted_cells):
     x, y, w, h = cell_data['bbox']
     row, col = cell_data['position']
@@ -121,4 +121,5 @@ if len(extracted_cells) > 10:
 print(f"\nAll cell images saved in '{output_dir}' folder")
 
 cv2.waitKey(0)
+
 cv2.destroyAllWindows()
